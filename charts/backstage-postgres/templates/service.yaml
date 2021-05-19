@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backstage-postgres
+  labels:
+    app: backstage
+    role: db
+spec:
+  selector:
+    app: backstage
+    role: db
+  clusterIP: None
+  ports:
+    - port: 5432

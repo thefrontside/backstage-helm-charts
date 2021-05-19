@@ -1,0 +1,54 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: backstage-postgres
+  labels:
+    app: backstage
+    role: db
+spec:
+  selector:
+    matchLabels:
+      app: backstage
+      role: db
+  serviceName: backstage-postgres
+  template:
+    metadata:
+      labels:
+        app: backstage
+        role: db
+    spec:
+      terminationGracePeriodSeconds: 10
+      containers:
+        - name: backstage-postgres
+          image: "postgres:13.2-alpine"
+          env:
+            - name: POSTGRES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: backstage-postgres
+                  key: supassword
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: backstage-postgres
+              mountPath: /var/lib/postgresql/data
+            - name: backstage-postgres-password
+              mountPath: /home/postgres
+      volumes:
+        - name: backstage-postgres-password
+          secret:
+            secretName: backstage-postgres
+            items:
+              - key: pgpass
+                path: .pgpass
+                mode: 0600
+  volumeClaimTemplates:
+    - metadata:
+        name: backstage-postgres
+      spec:
+        accessModes: [ "ReadWriteOnce" ]
+        # TODO
+        # storageClassName: asdf
+        resources:
+          requests:
+            storage: 1Gi

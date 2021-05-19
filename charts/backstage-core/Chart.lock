@@ -1,0 +1,6 @@
+dependencies:
+- name: backstage-postgres
+  repository: file://../backstage-postgres
+  version: 0.0.0
+digest: sha256:ecd8127ba80bcdf6b74d7081bff37428db80468e31e647c5b9a7f73d6761ece3
+generated: "2021-05-11T22:30:48.709204-04:00"

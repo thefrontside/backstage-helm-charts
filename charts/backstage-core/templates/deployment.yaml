@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: backstage
+  labels:
+    app: backstage
+    role: service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: backstage
+      role: service
+  template:
+    metadata:
+      labels:
+        app: backstage
+        role: service
+    spec:
+      serviceAccountName: backstage
+      containers:
+        - name: backstage
+          image: backstage
+          imagePullPolicy: IfNotPresent
+          env:
+            - name: LOG_LEVEL
+              value: debug
+          volumeMounts:
+            - name: app-config
+              mountPath: /config/app
+            - name: postgres-config
+              mountPath: /config/pg
+            - name: service-account-config
+              mountPath: /config/sa
+      volumes:
+        - name: app-config
+          configMap:
+            name: app-config
+            items:
+              - key: document
+                path: app-config.yaml
+        - name: postgres-config
+          secret:
+            secretName: backstage-postgres
+            items:
+              - key: supassword
+                path: pass.txt
+                mode: 0600
+        - name: service-account-config
+          secret:
+            secretName: backstage
+            items:
+              - key: token
+                path: token.txt
+                mode: 0600
