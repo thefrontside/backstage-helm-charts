@@ -18,37 +18,73 @@ spec:
         role: db
     spec:
       terminationGracePeriodSeconds: 10
+      securityContext:
+        runAsNonRoot: true
+        runAsUser: 999 # postgres
+        runAsGroup: 999 # postgres
       containers:
         - name: backstage-postgres
-          image: "postgres:13.2-alpine"
-          env:
-            - name: POSTGRES_PASSWORD
-              valueFrom:
-                secretKeyRef:
-                  name: backstage-postgres
-                  key: supassword
+          image: "postgres:{{ .Chart.AppVersion }}"
+          args: ["-c", "config_file=/var/lib/postgresql/config/postgresql.conf"]
+          # command: ["sleep", "999999"]
+          securityContext:
+            privileged: true
           ports:
             - containerPort: 5432
+          env:
+            - name: POSTGRES_HOST_AUTH_METHOD
+              value: trust
+            - name: PGDATA
+              value: /var/lib/postgresql/data/pg
           volumeMounts:
-            - name: backstage-postgres
+            - name: postgres-config
+              mountPath: /var/lib/postgresql/config
+            - name: postgres-init
+              mountPath: /docker-entrypoint-initdb.d
+            - name: backstage-postgres-data
               mountPath: /var/lib/postgresql/data
-            - name: backstage-postgres-password
-              mountPath: /home/postgres
+            - name: certs
+              mountPath: /certs
+          # TODO
+          # livenessProbe:
+          #   exec:
+          #     command:
+          #       - pg_isready
+          #   initialDelaySeconds: 5
+          #   periodSeconds: 3
+          # readinessProbe:
+          #   exec:
+          #     command:
+          #       - pg_isready
+          #   initialDelaySeconds: 3
+          #   periodSeconds: 2
       volumes:
-        - name: backstage-postgres-password
-          secret:
-            secretName: backstage-postgres
+        - name: postgres-config
+          configMap:
+            name: postgres-config
             items:
-              - key: pgpass
-                path: .pgpass
-                mode: 0600
+              - key: postgresql_conf
+                path: postgresql.conf
+              - key: pg_hba_conf
+                path: pg_hba.conf
+        - name: postgres-init
+          configMap:
+            name: postgres-config
+            items:
+              - key: init_user
+                path: init-user.sh
+        - name: backstage-postgres-data
+          persistentVolumeClaim:
+            claimName: backstage-postgres-data
+        - name: certs
+          persistentVolumeClaim:
+            claimName: certs
   volumeClaimTemplates:
     - metadata:
-        name: backstage-postgres
+        name: backstage-postgres-data
       spec:
-        accessModes: [ "ReadWriteOnce" ]
-        # TODO
-        # storageClassName: asdf
+        accessModes:
+          - ReadWriteOnce
         resources:
           requests:
             storage: 1Gi
