@@ -1,0 +1,33 @@
+apiVersion: batch/v1
+kind: CronJob
+metadata:
+  name: certgen
+spec:
+  # schedule: "0 0 1 * *" # Rotate monthly
+  schedule: "*/1 * * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: certgen
+              image: alpine
+              command:
+                - /certgen/bin/certgen
+              volumeMounts:
+                - name: certs
+                  mountPath: /certgen/certs
+                - name: scripts
+                  mountPath: /certgen/bin
+          restartPolicy: Never
+          volumes:
+            - name: certs
+              persistentVolumeClaim:
+                claimName: certs
+            - name: scripts
+              configMap:
+                name: scripts
+                defaultMode: 0700
+                items:
+                  - key: certgen
+                    path: certgen
