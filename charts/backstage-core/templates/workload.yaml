@@ -18,23 +18,10 @@ spec:
         role: service
     spec:
       serviceAccountName: backstage
-      # initContainers:
-      #   - name: debug
-      #     image: ubuntu
-      #     command:
-      #       - sleep
-      #       - "999999999"
-      #     volumeMounts:
-      #       - name: certs
-      #         mountPath: /config/certs
       containers:
         - name: backstage
           image: backstage
           imagePullPolicy: IfNotPresent
-          # securityContext:
-          #   runAsNonRoot: true
-          #   runAsUser: 999 # backstage
-          #   runAsGroup: 999 # backstage
           env:
             - name: LOG_LEVEL
               value: debug

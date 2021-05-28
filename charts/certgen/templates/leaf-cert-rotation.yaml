@@ -3,8 +3,8 @@ kind: CronJob
 metadata:
   name: certgen
 spec:
-  # schedule: "0 0 1 * *" # Rotate monthly
-  schedule: "*/1 * * * *"
+  schedule: "0 0 1 * *" # Monthly on the 1st
+  # schedule: "*/1 * * * *" # Every minute on the minute
   concurrencyPolicy: Replace
   jobTemplate:
     spec:
