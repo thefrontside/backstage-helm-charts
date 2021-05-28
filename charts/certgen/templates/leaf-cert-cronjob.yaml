@@ -5,12 +5,13 @@ metadata:
 spec:
   # schedule: "0 0 1 * *" # Rotate monthly
   schedule: "*/1 * * * *"
+  concurrencyPolicy: Replace
   jobTemplate:
     spec:
       template:
         spec:
-          containers:
-            - name: certgen
+          initContainers:
+            - name: generate-leaf-certs
               image: alpine
               command:
                 - /certgen/bin/certgen
@@ -20,6 +21,49 @@ spec:
                   mountPath: /certgen/certs
                 - name: scripts
                   mountPath: /certgen/bin
+            - name: restart-backstage
+              image: bitnami/kubectl:latest
+              command:
+                - kubectl
+                - rollout
+                - restart
+                - deployments/backstage
+              volumeMounts:
+                - name: certs
+                  mountPath: /certgen/certs
+                - name: scripts
+                  mountPath: /certgen/bin
+            - name: wait-for-backstage
+              image: bitnami/kubectl:latest
+              command:
+                - kubectl
+                - rollout
+                - status
+                - deployments/backstage
+                - --watch=true
+              volumeMounts:
+                - name: certs
+                  mountPath: /certgen/certs
+                - name: scripts
+                  mountPath: /certgen/bin
+            - name: restart-postgres
+              image: bitnami/kubectl:latest
+              command:
+                - kubectl
+                - rollout
+                - restart
+                - statefulsets/backstage-postgres
+              volumeMounts:
+                - name: certs
+                  mountPath: /certgen/certs
+                - name: scripts
+                  mountPath: /certgen/bin
+          containers:
+            - name: noop
+              image: alpine
+              command:
+                - echo
+                - "done rotating certs"
           restartPolicy: Never
           volumes:
             - name: certs

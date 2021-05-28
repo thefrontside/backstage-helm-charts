@@ -5,7 +5,6 @@ metadata:
   annotations:
     "helm.sh/hook": pre-install
     "helm.sh/hook-weight": "0"
-    "helm.sh/resource-policy": keep
 data:
   certgen: |
 {{ tpl (.Files.Get "files/certgen.sh.tpl") . | indent 4 }}
