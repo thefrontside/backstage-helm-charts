@@ -1,0 +1,7 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: certgen
+data:
+  certgen: |
+{{ tpl (.Files.Get "files/certgen.sh.tpl") . | indent 4 }}

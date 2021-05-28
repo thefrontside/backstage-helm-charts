@@ -12,7 +12,7 @@ data:
     ssl_key_file = '/certs/server.key'
   pg_hba_conf: |
     # TYPE   DATABASE     USER       ADDRESS       METHOD
-    local    all          postgres                 peer
+    local    all          all                      trust
     hostssl  all          all        all           cert
   init_user: |
     #!/bin/bash
@@ -20,4 +20,6 @@ data:
 
     psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" --dbname "$POSTGRES_DB" <<-EOSQL
         CREATE USER backstage;
+        CREATE DATABASE backstage;
+        GRANT ALL PRIVILEGES ON DATABASE backstage TO backstage;
     EOSQL

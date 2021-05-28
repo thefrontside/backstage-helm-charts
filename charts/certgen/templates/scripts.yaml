@@ -4,4 +4,4 @@ metadata:
   name: scripts
 data:
   certgen: |
-{{ tpl (.Files.Get "files/cert-gen.sh.tpl") . | indent 4 }}
+{{ tpl (.Files.Get "files/certgen.sh.tpl") . | indent 4 }}

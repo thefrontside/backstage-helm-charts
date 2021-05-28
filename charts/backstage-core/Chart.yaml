@@ -19,7 +19,7 @@ version: 0.0.0
 
 appVersion: "0.6.1"
 
-dependencies:
-  - name: backstage-postgres
-    version: 10.4.2
-    repository: "file://../backstage-postgres"
+# dependencies:
+#   - name: backstage-postgres
+#     version: 10.4.2
+#     repository: "file://../backstage-postgres"

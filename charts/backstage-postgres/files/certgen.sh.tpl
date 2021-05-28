@@ -11,9 +11,12 @@ create_csr_key()
   filename=$1
   cn=$2
 
-  openssl req -new -nodes -out "$filename.csr" -keyout "$filename.key" -subj "/CN=$cn"
+  # openssl genrsa -out "$filename.key" 2048
+  openssl req -new -nodes -keyout "$filename.key" -out "$filename.csr" -subj "/CN=$cn"
+  # openssl pkcs8 -topk8 -in "$filename.key" -out "$filename.pkcs8.key" -passin pass:pw -passout pass:pw
   set_perms "$filename.csr"
   set_perms "$filename.key"
+  # set_perms "$filename.pkcs8.key"
 }
 
 create_root_cert()
@@ -41,6 +44,6 @@ apk upgrade --update-cache --available && apk add openssl
 
 cd /certgen/certs
 
-create_root_cert {{ .Values.serverName }}
+create_root_cert {{ .Values.serverName }}-ca
 create_cert server {{ .Values.serverName }}
 create_cert client {{ .Values.clientName }}

@@ -1,2 +1,2 @@
 serverName: backstage-postgres
-clientName: backstage
+clientName: postgres

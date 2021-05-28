@@ -12,12 +12,15 @@ backend:
     connection:
       database: backstage
       host: backstage-postgres
-      user: backstage
+      user: postgres
       port: 5432
       ssl:
-        ca: "/config/certs/root.crt"
-        key: "/config/certs/client.key"
-        cert: "/config/certs/client.crt"
+        ca:
+          $file: /config/certs/root.crt
+        key:
+          $file: /config/certs/client.key
+        cert:
+          $file: /config/certs/client.crt
   csp:
     connect-src: ["'self'", 'http:', 'https:']
   cors:

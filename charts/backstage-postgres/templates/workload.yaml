@@ -18,29 +18,37 @@ spec:
         role: db
     spec:
       terminationGracePeriodSeconds: 10
-      securityContext:
-        runAsNonRoot: true
-        runAsUser: 999 # postgres
-        runAsGroup: 999 # postgres
+      initContainers:
+        - name: certgen
+          image: alpine
+          command:
+            - /certgen/bin/certgen
+          volumeMounts:
+            - name: certs
+              mountPath: /certgen/certs
+            - name: certgen
+              mountPath: /certgen/bin
       containers:
         - name: backstage-postgres
           image: "postgres:{{ .Chart.AppVersion }}"
           args: ["-c", "config_file=/var/lib/postgresql/config/postgresql.conf"]
           # command: ["sleep", "999999"]
           securityContext:
-            privileged: true
+            runAsNonRoot: true
+            runAsUser: 999 # postgres
+            runAsGroup: 999 # postgres
           ports:
             - containerPort: 5432
           env:
-            - name: POSTGRES_HOST_AUTH_METHOD
-              value: trust
+            - name: POSTGRES_PASSWORD
+              value: postgres
             - name: PGDATA
               value: /var/lib/postgresql/data/pg
           volumeMounts:
             - name: postgres-config
               mountPath: /var/lib/postgresql/config
-            - name: postgres-init
-              mountPath: /docker-entrypoint-initdb.d
+            # - name: postgres-init
+            #   mountPath: /docker-entrypoint-initdb.d
             - name: backstage-postgres-data
               mountPath: /var/lib/postgresql/data
             - name: certs
@@ -67,18 +75,26 @@ spec:
                 path: postgresql.conf
               - key: pg_hba_conf
                 path: pg_hba.conf
-        - name: postgres-init
-          configMap:
-            name: postgres-config
-            items:
-              - key: init_user
-                path: init-user.sh
+        # - name: postgres-init
+        #   configMap:
+        #     name: postgres-config
+        #     defaultMode: 0777
+        #     items:
+        #       - key: init_user
+        #         path: init-user.sh
         - name: backstage-postgres-data
           persistentVolumeClaim:
             claimName: backstage-postgres-data
         - name: certs
           persistentVolumeClaim:
             claimName: certs
+        - name: certgen
+          configMap:
+            name: certgen
+            defaultMode: 0700
+            items:
+              - key: certgen
+                path: certgen
   volumeClaimTemplates:
     - metadata:
         name: backstage-postgres-data

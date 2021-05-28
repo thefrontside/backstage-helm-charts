@@ -1,7 +1,7 @@
 apiVersion: batch/v1
 kind: CronJob
 metadata:
-  name: cert-gen
+  name: certgen
 spec:
   # schedule: "0 0 1 * *" # Rotate monthly
   schedule: "*/1 * * * *"
@@ -10,7 +10,7 @@ spec:
       template:
         spec:
           containers:
-            - name: backstage-postgres-cert-gen
+            - name: certgen
               image: alpine
               command:
                 - /certgen/bin/certgen
