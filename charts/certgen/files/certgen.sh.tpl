@@ -35,12 +35,17 @@ create_cert()
   set_perms "$filename.crt"
 }
 
-TTL=45
-
 apk upgrade --update-cache --available && apk add openssl
-
 cd /certgen/certs
+TTL=45
+command=$1
 
-create_root_cert {{ .Values.serverName }}-ca
-create_cert server {{ .Values.serverName }}
-create_cert client {{ .Values.clientName }}
+case $command in
+  "root")
+    create_root_cert {{ .Values.serverName }}-ca
+    ;;
+  "leaves")
+    create_cert server {{ .Values.serverName }}
+    create_cert client {{ .Values.clientName }}
+    ;;
+esac

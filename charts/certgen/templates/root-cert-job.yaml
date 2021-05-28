@@ -1,33 +1,33 @@
 apiVersion: batch/v1
-kind: CronJob
+kind: Job
 metadata:
-  name: certgen
+  name: certgen-root
+  annotations:
+    "helm.sh/hook": pre-install
+    "helm.sh/hook-weight": "2"
 spec:
-  # schedule: "0 0 1 * *" # Rotate monthly
-  schedule: "*/1 * * * *"
-  jobTemplate:
+  template:
     spec:
-      template:
-        spec:
-          containers:
-            - name: certgen
-              image: alpine
-              command:
-                - /certgen/bin/certgen
-              volumeMounts:
-                - name: certs
-                  mountPath: /certgen/certs
-                - name: scripts
-                  mountPath: /certgen/bin
-          restartPolicy: Never
-          volumes:
+      containers:
+        - name: certgen
+          image: alpine
+          command:
+            - /certgen/bin/certgen
+            - root
+          volumeMounts:
             - name: certs
-              persistentVolumeClaim:
-                claimName: certs
+              mountPath: /certgen/certs
             - name: scripts
-              configMap:
-                name: scripts
-                defaultMode: 0700
-                items:
-                  - key: certgen
-                    path: certgen
+              mountPath: /certgen/bin
+      restartPolicy: Never
+      volumes:
+        - name: certs
+          persistentVolumeClaim:
+            claimName: certs
+        - name: scripts
+          configMap:
+            name: scripts
+            defaultMode: 0700
+            items:
+              - key: certgen
+                path: certgen
