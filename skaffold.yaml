@@ -1,0 +1,6 @@
+deploy:
+  helm:
+    releases:
+      - name: my-release
+        artifactOverrides:
+          image: gcr.io/my-project/my-image # no tag present!

@@ -41,19 +41,6 @@ spec:
               mountPath: /var/lib/postgresql/data
             - name: certs
               mountPath: /certs
-          # TODO
-          # livenessProbe:
-          #   exec:
-          #     command:
-          #       - pg_isready
-          #   initialDelaySeconds: 5
-          #   periodSeconds: 3
-          # readinessProbe:
-          #   exec:
-          #     command:
-          #       - pg_isready
-          #   initialDelaySeconds: 3
-          #   periodSeconds: 2
       volumes:
         - name: postgres-config
           configMap:
