@@ -29,6 +29,3 @@ spec:
           configMap:
             name: scripts
             defaultMode: 0700
-            items:
-              - key: certgen
-                path: certgen
