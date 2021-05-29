@@ -33,19 +33,6 @@ spec:
                   mountPath: /certgen/certs
                 - name: scripts
                   mountPath: /certgen/bin
-            - name: wait-for-backstage
-              image: bitnami/kubectl:latest
-              command:
-                - kubectl
-                - rollout
-                - status
-                - deployments/backstage
-                - --watch=true
-              volumeMounts:
-                - name: certs
-                  mountPath: /certgen/certs
-                - name: scripts
-                  mountPath: /certgen/bin
             - name: restart-postgres
               image: bitnami/kubectl:latest
               command:
